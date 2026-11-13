@@ -21,7 +21,7 @@ function promotionCode(timesRedeemed: number, amountOff = 1000): Stripe.Promotio
     max_redemptions: 100,
     times_redeemed: timesRedeemed,
     restrictions: { first_time_transaction: true },
-    coupon: {
+    get promotion() { return { type: "coupon", coupon: (this as { couponData?: unknown }).couponData }; }, couponData: {
       valid: true,
       amount_off: amountOff,
       currency: "eur",
