@@ -159,7 +159,7 @@ function founderPromotionCode(overrides: {
     restrictions: {
       first_time_transaction: overrides.firstTimeTransaction ?? true,
     },
-    coupon: {
+    get promotion() { return { type: "coupon", coupon: (this as { couponData?: unknown }).couponData }; }, couponData: {
       valid: true,
       amount_off: overrides.amountOff ?? 1000,
       currency: "eur",

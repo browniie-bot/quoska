@@ -143,7 +143,9 @@ async function retrieveFounderOfferStatus(
   tier: PaidPlan,
 ): Promise<FounderOfferStatus> {
   try {
-    const promotionCode = await stripe.promotionCodes.retrieve(promotionCodeId);
+    const promotionCode = await stripe.promotionCodes.retrieve(promotionCodeId, {
+      expand: ["promotion.coupon"],
+    });
     const status = founderOfferStatusFromPromotionCode(promotionCode, tier);
     if (status.configured && status.remaining === null) {
       console.error("Founder promotion code does not match the expected offer settings.");
@@ -164,7 +166,11 @@ export function founderOfferStatusFromPromotionCode(
   tier: PaidPlan = "team",
 ): FounderOfferStatus {
   const offer = FOUNDER_OFFERS[tier];
-  const coupon = promotionCode.coupon;
+  const coupon = promotionCode.promotion.coupon;
+  if (!coupon || typeof coupon === "string") {
+    // Coupon not expanded or missing: cannot validate, fail closed.
+    return { configured: true, available: false, remaining: null };
+  }
   const limits = [
     promotionCode.max_redemptions === null
       ? null
